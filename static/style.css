@@ -17,7 +17,12 @@ body{
     padding: 10px;
 }
 
+h1{
+    margin-bottom: 10px;
+}
+
 h3{
+    margin-top: 5px;
     color: #04AA6D;
     overflow: hidden;
     word-wrap: break-word;
