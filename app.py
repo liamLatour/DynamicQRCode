@@ -13,29 +13,30 @@ registered_users = []
 def home():
     global redirect_url
     login_id = request.cookies.get('loginID')
-    index = render_template('pages/index.html', redirect_url=redirect_url)
+    index = 'pages/index.html'
+    login = 'pages/login.html'
     
     if request.method == 'GET':
         if login_id not in registered_users:
-            return render_template('pages/login.html')
-        return index
+            return render_template(login)
+        return render_template(index, redirect_url=redirect_url)
         
     if request.method == 'POST':
         if "password" in request.form:
             if request.form["password"] != password:
-                return render_template('pages/login.html', wrong_password="Mot de passe incorrect")
+                return render_template(login, wrong_password="Mot de passe incorrect")
         
             identifier = uuid.uuid4()
             
-            resp = make_response(index)
-            resp.set_cookie('loginID', str(identifier))
+            resp = make_response(render_template(index, redirect_url=redirect_url))
+            resp.set_cookie('loginID', str(identifier), max_age=3600*24*2)
             registered_users.append(str(identifier))
             return resp
         
         if "redirect_url" in request.form and login_id in registered_users:
             redirect_url = request.form["redirect_url"]
-            return index
-        return render_template('pages/login.html')
+            return render_template(index, redirect_url=redirect_url)
+        return render_template(login)
 
 @app.route('/redirect')
 def about():
@@ -45,7 +46,6 @@ def about():
 
 @app.errorhandler(500)
 def internal_error(error):
-    #db_session.rollback()
     return render_template('errors/500.html'), 500
 
 @app.errorhandler(404)
